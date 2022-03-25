@@ -1,0 +1,15 @@
+asgiref==3.5.0
+astroid==2.11.1
+autopep8==1.6.0
+dill==0.3.4
+Django==4.0.3
+isort==5.10.1
+lazy-object-proxy==1.7.1
+mccabe==0.7.0
+platformdirs==2.5.1
+pycodestyle==2.8.0
+pylint==2.13.0
+sqlparse==0.4.2
+toml==0.10.2
+tomli==2.0.1
+wrapt==1.14.0
