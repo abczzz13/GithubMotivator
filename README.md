@@ -17,7 +17,7 @@ The project will be set up in Django, with MongoDB as database. Celery with Rabb
 ## Approach
 - Git version control with PR's and issues
 - Automated testing with pytest and Github Actions
-- MongoDB as database
+- MongoDB as database to get familiar with non-sql databases
 - CI/CD pipeline on Heroku
 - Payments with Mollie API and webhooks
 - Scheduled tasks with Celery and RabbitMQ as broker
