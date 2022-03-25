@@ -3,7 +3,7 @@
 ## Introduction
 With this app the user can set a goal how many commits they want to do on Github and make a payment to fulfill the commitment. The payment will be donated to charity if the goal is not reached and otherwise returned. 
 
-The project will be set up in Django, with MongoDB as database. Celery with RabbitMQ as broker will be used to schedule tasks, such as periodically checking for Github activity. Furthermore, webhooks will be implemented for payment notifications.
+The project will be set up in Django, with MongoDB as database to get familiar with non-sql databases. Celery with RabbitMQ as broker will be used to schedule tasks, such as periodically checking for Github activity. Furthermore, webhooks will be implemented for payment notifications.
 
 ## Table of Contents
 * [Approach](#Approach)
