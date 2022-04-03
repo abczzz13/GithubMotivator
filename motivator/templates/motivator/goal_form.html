@@ -2,19 +2,16 @@
 {% load crispy_forms_tags %}
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
-    <h1>{{ title }}</h1>
+<h1>{{ user.username}}</h1>
     <div class="content-section">
         <form method="post">
             {% csrf_token %}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4">Log In</legend>
+                <legend class="border-bottom mb-4">Get started!</legend>
                 {{ form|crispy }}
             </fieldset>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">Login</button>
-                <small class="text-muted ml-2">
-                    <a href="{% url 'password_reset' %}">Forgot Password?</a>
-                </small>
+                <button class="btn btn-outline-info" type="submit">Set Goal</button>
             </div>
         </form>
     </div>
