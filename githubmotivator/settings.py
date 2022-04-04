@@ -88,7 +88,11 @@ WSGI_APPLICATION = 'githubmotivator.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'motivator_local',
+        'NAME': env.str('MONGODB_NAME'),
+        'ENFORCE_SCHEMA': False,
+        'CLIENT': {
+            'host': env.str('MONGODB_HOST')
+        }
     }
 }
 
