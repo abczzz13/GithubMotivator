@@ -38,13 +38,17 @@ jobs:
         pip install pylint
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     
-    - name: Code analysis with pylint
-      run: |
-        pylint $(git ls-files '*.py')
-      
-    # - name: Test with pytest
+    # - name: Code analysis with pylint
     #   run: |
-    #     python -m pytest -v
-    #   env:
+    #     pylint $(git ls-files '*.py')
+      
+    - name: Test with pytest
+      run: |
+        pytest
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        EMAIL_USER: ${{ secrets.EMAIL_USER }}
+        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+
           
           
