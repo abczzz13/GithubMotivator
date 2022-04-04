@@ -1,4 +1,4 @@
-"""motivator app URL Configuration"""
+'''Motivator App URL Configuration'''
 from django.urls import path
 from .views import index, CreateGoal, ListGoal, DetailGoal
 
