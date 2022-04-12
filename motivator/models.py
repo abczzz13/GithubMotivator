@@ -42,11 +42,11 @@ class Goal(models.Model):
             if self.end_date < self.start_date:
                 raise ValidationError("End date cannot be before start date.")
             elif self.start_date < timezone.now() - timezone.timedelta(
-                minutes=1
+                minutes=30
             ):
                 raise ValidationError("Start date cannot be in the past")
             elif self.end_date < timezone.now() - timezone.timedelta(
-                minutes=1
+                minutes=30
             ):
                 raise ValidationError("End date cannot be in the past")
 

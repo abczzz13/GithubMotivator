@@ -24,13 +24,13 @@ class GoalForm(ModelForm):
                         "end_date": "Or... change this field",
                     }
                 )
-            elif start_date < timezone.now() - timezone.timedelta(minutes=1):
+            elif start_date < timezone.now() - timezone.timedelta(minutes=30):
                 raise ValidationError(
                     {
                         "start_date": "Start date cannot be in the past",
                     }
                 )
-            elif end_date < timezone.now() - timezone.timedelta(minutes=1):
+            elif end_date < timezone.now() - timezone.timedelta(minutes=30):
                 raise ValidationError(
                     {
                         "end_date": "End date cannot be in the past",
