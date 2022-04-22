@@ -1,4 +1,4 @@
-"""Unit Tests for testing the Models"""
+"""Unit Tests for testing the Motivator Models"""
 import pytest
 from django.core.exceptions import ValidationError
 from django.utils import timezone
