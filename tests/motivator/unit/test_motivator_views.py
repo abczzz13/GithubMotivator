@@ -1,5 +1,4 @@
 """Testing the view functions of the Motivator App"""
-import pytest
 from django.urls import reverse
 from motivator.views import CreateGoal, DetailGoal, ListGoal, index
 
@@ -33,15 +32,15 @@ def test_motivator_goals(rf, goal):
     assert response.status_code == 200
 
 
-# No reverse match
-@pytest.mark.skip(reason="Currently fails, have to look into this")
 def test_motivator_goals_detail(rf, goal):
     """
     GIVEN a Django application configured for testing
     WHEN a GET request is made to 'goal-detail' view function
     THEN check that the response is valid
     """
-    path = reverse("goal-detail", goal.id)
+    print(goal.id)
+    path = reverse("goal-detail", args=[goal.id])
+    print(path)
     request = rf.get(path)
     request.user = goal.user
 

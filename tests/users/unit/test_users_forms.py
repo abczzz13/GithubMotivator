@@ -2,19 +2,23 @@
 import pytest
 from users.forms import UserMotivatorForm, UserRegisterForm, UserUpdateForm
 
+username = "Test_User"
+password = "TheWarOnDrugs"
+email = "test@test.com"
+
 
 @pytest.mark.django_db
 def test_register_form_valid():
     """
     GIVEN a Django application configured for testing
     WHEN valid data is used as input to the User Register Form
-    THEN
+    THEN confirm the that form validation returns a valid repsonse
     """
     form_data = {
-        "username": "Test_User",
-        "password1": "TheWarOnDrugs",
-        "password2": "TheWarOnDrugs",
-        "email": "test@test.com",
+        "username": username,
+        "password1": password,
+        "password2": password,
+        "email": email,
     }
 
     form = UserRegisterForm(data=form_data)
@@ -41,13 +45,13 @@ def test_register_form_invalid(field, value, error):
     """
     GIVEN a Django application configured for testing
     WHEN invalid data is used as input to the User Register Form
-    THEN
+    THEN confirm the that correct error responses are returned
     """
     form_data = {
-        "username": "Test_User",
-        "password1": "TheWarOnDrugs",
-        "password2": "TheWarOnDrugs",
-        "email": "test@test.com",
+        "username": username,
+        "password1": password,
+        "password2": password,
+        "email": email,
     }
     form_data[field] = value
 
@@ -60,7 +64,7 @@ def test_motivator_form_valid():
     """
     GIVEN a Django application configured for testing
     WHEN valid data is used as input to the User Motivator Form
-    THEN
+    THEN confirm the that form validation returns a valid repsonse
     """
     form_data = {
         "github_username": "abczzz13",
@@ -89,7 +93,7 @@ def test_motivator_form_invalid(github_username, error):
     """
     GIVEN a Django application configured for testing
     WHEN invalid data is used as input to the User Motivator Form
-    THEN
+    THEN confirm the that correct error responses are returned
     """
     form_data = {
         "github_username": github_username,
@@ -104,19 +108,19 @@ def test_motivator_form_invalid(github_username, error):
 @pytest.mark.parametrize(
     "username, email, assertion",
     [
-        ("Test_User", "test@test.com", True),
-        ("Test User", "test@test.com", False),
-        ("Test_User", "test@test", False),
-        ("", "test@test.com", False),
-        ("Test_User", "", False),
+        (username, email, True),
+        ("Test User", email, False),
+        (username, "test@test", False),
+        ("", email, False),
+        (username, "", False),
     ],
 )
 @pytest.mark.django_db
 def test_update_form(username, email, assertion):
     """
     GIVEN a Django application configured for testing
-    WHEN valid data is used as input to the User Update Form
-    THEN
+    WHEN data is used as input to the User Update Form
+    THEN that the data gets correctly validated
     """
     form_data = {
         "username": username,
