@@ -1,5 +1,3 @@
-import uuid
-
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
@@ -16,8 +14,6 @@ class Goal(models.Model):
         (GOAL_STATUS_SUCCESS, "succesfull"),
         (GOAL_STATUS_FAILED, "failed"),
     ]
-    # https://github.com/doableware/djongo/issues/8
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     github_username = models.CharField(max_length=255)
     repo = models.CharField(max_length=255, validators=[MinLengthValidator(3)])
     commit_goal = models.PositiveIntegerField(
@@ -72,8 +68,6 @@ class Payment(models.Model):
         (PAYMENT_STATUS_FAILED, "failed"),
         (PAYMENT_STATUS_PAID, "paid"),
     ]
-
-    id = models.PositiveIntegerField(primary_key=True)
     mollie_id = models.CharField(max_length=255)
     amount_eur = models.CharField(max_length=255)
     checkout_url = models.URLField()
