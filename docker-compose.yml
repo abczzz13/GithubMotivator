@@ -23,7 +23,7 @@ services:
     ports:
       - 8000:8000
     env_file:
-      - ./.env
+      - ./.env_docker
     depends_on:
       - motivator_postgres
     container_name: motivator
