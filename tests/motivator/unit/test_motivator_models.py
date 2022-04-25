@@ -92,7 +92,7 @@ def test_goal_model_valid():
             10,
             timezone.now() - timezone.timedelta(days=7),
             timezone.now() + timezone.timedelta(days=7),
-            "value is greater than or equal",
+            "Date cannot be in the past",
         ),
         (
             "testrepo9",
@@ -100,7 +100,7 @@ def test_goal_model_valid():
             10,
             timezone.now() - timezone.timedelta(days=7),
             timezone.now() - timezone.timedelta(days=1),
-            "value is greater than or equal",
+            "Date cannot be in the past",
         ),
         (
             "testrepo10",
@@ -108,7 +108,7 @@ def test_goal_model_valid():
             10,
             timezone.now(),
             timezone.now() - timezone.timedelta(days=1),
-            "value is greater than or equal",
+            "Date cannot be in the past",
         ),
     ],
 )

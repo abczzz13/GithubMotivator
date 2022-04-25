@@ -4,6 +4,8 @@ from django.db import models
 from django.utils import timezone
 from users.models import User
 
+from .validators import date_validator_min
+
 
 class Goal(models.Model):
     GOAL_STATUS_IN_PROGRESS = "i"
@@ -26,11 +28,9 @@ class Goal(models.Model):
         max_length=1, choices=GOAL_STATUS_CHOICES, default="i"
     )
     start_date = models.DateTimeField(
-        default=timezone.now, validators=[MinValueValidator(timezone.now())]
+        default=timezone.now, validators=[date_validator_min]
     )
-    end_date = models.DateTimeField(
-        validators=[MinValueValidator(timezone.now())]
-    )
+    end_date = models.DateTimeField(validators=[date_validator_min])
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def _validate_start_end_dates(self):
