@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  motivator_postgres:
+    image: postgres
+    volumes:
+      - motivator_postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    restart: always
+    container_name: motivator_postgres
+  motivator:
+    build: .
+    # command: python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000
+    # command: ./docker-entrypoint.sh
+    command: bash docker-entrypoint.sh
+    volumes:
+      - .:/motivator
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env
+    depends_on:
+      - motivator_postgres
+    container_name: motivator
+    restart: on-failure
+
+volumes:
+  motivator_postgres_data:

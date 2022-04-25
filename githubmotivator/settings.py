@@ -87,10 +87,11 @@ WSGI_APPLICATION = "githubmotivator.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "djongo",
-        "NAME": env.str("MONGODB_NAME"),
-        "ENFORCE_SCHEMA": False,
-        "CLIENT": {"host": env.str("MONGODB_HOST")},
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env.str("POSTGRES_DB_NAME"),
+        "USER": env.str("POSTGRES_DB_USER"),
+        "PASSWORD": env.str("POSTGRES_DB_PW"),
+        "HOST": env.str("POSTGRES_DB_HOST"),
     }
 }
 
