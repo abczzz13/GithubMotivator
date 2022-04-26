@@ -2,32 +2,33 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
 <h1>{{ user.username}}</h1>
-    <div class="content-section">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Repo</th>
-                    <th scope="col">Commits</th>
-                    <th scope="col">Amount</th>
-                    <th scope="col">Start Date</th>
-                    <th scope="col">Deadline</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if goals %}   
-                {% for goal in goals %} 
-                <tr>
-                    <th scope="row"><a href="{% url 'goal-detail' goal.pk %}">{{ goal.pk }}</a></th>
-                    <td><a href="https://github.com/{{ goal.github_username }}/{{ goal.repo}}/" target="_blank">{{ goal.repo }}<a></td>
-                    <td>{{ goal.commits }}</td>
-                    <td>{{ goal.amount }}</td>
-                    <td>{{ goal.start_date }}</td>
-                    <td>{{ goal.end_date }}</td>
-                </tr>
-                {% endfor %}
-                {% endif %}
-            </tbody>
-          </table>
-    </div>
+<div class="content-section">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Repo</th>
+                <th scope="col">Commits</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">Deadline</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if goals %}
+            {% for goal in goals %}
+            <tr>
+                <th scope="row"><a href="{% url 'goal-detail' goal.pk %}">{{ goal.pk }}</a></th>
+                <td><a href="https://github.com/{{ goal.github_username }}/{{ goal.repo}}/"
+                        target="_blank">{{ goal.repo }}<a></td>
+                <td>{{ goal.commit_goal }}</td>
+                <td>{{ goal.amount }}</td>
+                <td>{{ goal.start_date }}</td>
+                <td>{{ goal.end_date }}</td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

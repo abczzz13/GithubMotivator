@@ -49,8 +49,11 @@ jobs:
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         EMAIL_USER: ${{ secrets.EMAIL_USER }}
         EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-        MONGODB_HOST: ${{ secrets.MONGODB_HOST }}
-        MONGODB_NAME: ${{ secrets.MONGODB_NAME }}
+        POSTGRES_DB_NAME: ${{ secrets.POSTGRES_DB_NAME }}
+        POSTGRES_DB_USER: ${{ secrets.POSTGRES_DB_USER }}
+        POSTGRES_DB_PW: ${{ secrets.POSTGRES_DB_PW}}
+        POSTGRES_DB_HOST: ${{ secrets.POSTGRES_DB_HOST }}
+        POSTGRES_DB_PORT: ${{ secrets.POSTGRES_DB_PORT }}
 
           
           
