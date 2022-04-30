@@ -13,3 +13,13 @@ def date_validator_min(value):
         raise ValidationError("Date cannot be in the past")
     else:
         return value
+
+
+# def validator_url_alive(value):
+#     url = f"https://github.com/{self.github_username}/{self.repo}"
+#     if "message" in get_response_from_url(url):
+#         raise ValidationError(
+#             {"repo": "This Github repository could not be found."}
+#         )
+#     else:
+#         return value
