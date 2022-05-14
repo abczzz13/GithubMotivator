@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from django.utils import timezone
+
 from .models import Goal
 from .utils import get_response_from_url
 
@@ -8,7 +10,12 @@ def parse_github_datetime(event_datetime: str) -> datetime:
     """Parse the created_at field from github api into datetime object"""
     date_time = event_datetime[:-1].replace("T", " ")
 
-    return datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S")
+    github_time = timezone.make_aware(
+        datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S")
+    )
+    github_time_correction = timezone.timedelta(hours=2)
+
+    return github_time + github_time_correction
 
 
 def count_commits(goal: Goal) -> int:
@@ -20,12 +27,12 @@ def count_commits(goal: Goal) -> int:
     data = get_response_from_url(url)
 
     if "message" in data:
-        print("Error!")
-        return count
+        # Think about specific error message for this situation?
+        print(data["message"], url)
+        return "Error!"
 
     for event in data.json():
         event_datetime = parse_github_datetime(event["created_at"])
-
         if goal.start_date < event_datetime < goal.end_date:
             if "commits" in event["payload"]:
                 for commit in event["payload"]["commits"]:

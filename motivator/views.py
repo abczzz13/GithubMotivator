@@ -26,11 +26,13 @@ class ListGoal(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Goal.objects.filter(user=self.request.user)
 
-    # def get_context_data(self, **kwargs):
-    #     pass
-    #     # context = super().get_context_data(**kwargs)
-    #     # context[""] =
-    #     # return context
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["commit_goals"] = []
+        for goal in context["goals"]:
+            commit_goal = {"goal": goal, "count": count_commits(goal)}
+            context["commit_goals"].append(commit_goal)
+        return context
 
 
 class DetailGoal(LoginRequiredMixin, DetailView):
@@ -39,10 +41,10 @@ class DetailGoal(LoginRequiredMixin, DetailView):
     model = Goal
     context_object_name = "goal"
 
-    # def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
-    #     context = super().get_context_data(**kwargs)
-    #     context["commit_count"] = count_commits(context)
-    #     return context
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["commit_count"] = count_commits(context["goal"])
+        return context
 
 
 class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
