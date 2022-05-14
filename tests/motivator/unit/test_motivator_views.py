@@ -58,6 +58,7 @@ def test_motivator_goals_create(rf, user):
     path = reverse("goal-create")
     request = rf.get(path)
     request.user = user.user
+    print(dir(user.user.usermotivator))
 
     response = CreateGoal.as_view()(request)
 

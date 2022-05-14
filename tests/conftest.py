@@ -2,15 +2,18 @@
 import pytest
 from django.utils import timezone
 from mixer.backend.django import mixer
+
 from motivator.models import Goal
 from users.models import User, UserMotivator
 
 
 @pytest.fixture()
 def user(db):
-    motivator = mixer.blend(UserMotivator)
+    motivator = mixer.blend(UserMotivator, github_username="abczzz13")
     test_user = mixer.blend(User, username="Test User")
     motivator.user = test_user
+    motivator.save()
+    test_user.save()
     return motivator
 
 
