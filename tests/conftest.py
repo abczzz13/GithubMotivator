@@ -35,7 +35,7 @@ def registered_user(client, db):
         "email": "test@test.com",
         "password1": "PasswordofTestUser",
         "password2": "PasswordofTestUser",
-        "github_username": "testhub",
+        "github_username": "abczzz13",
     }
 
     client.post("/register/", user)

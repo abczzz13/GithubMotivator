@@ -38,7 +38,7 @@ def test_create_goal_unauthenticated(client):
     "repo, commit_goal, amount, start_date, end_date, status_code",
     [
         (
-            "testrepo",
+            "GithubMotivator",
             10,
             10,
             timezone.now(),
@@ -54,7 +54,7 @@ def test_create_goal_unauthenticated(client):
             200,
         ),
         (
-            "testrepo",
+            "GithubMotivator",
             "",
             10,
             timezone.now(),
@@ -62,7 +62,7 @@ def test_create_goal_unauthenticated(client):
             200,
         ),
         (
-            "testrepo",
+            "GithubMotivator",
             10,
             "",
             timezone.now(),
@@ -70,16 +70,16 @@ def test_create_goal_unauthenticated(client):
             200,
         ),
         (
-            "testrepo",
+            "GithubMotivator",
             10,
             10,
             "",
             timezone.now() + timezone.timedelta(days=7),
             200,
         ),
-        ("testrepo", 10, 10, timezone.now(), "", 200),
+        ("GithubMotivator", 10, 10, timezone.now(), "", 200),
         (
-            "testrepo",
+            "tGithubMotivator",
             0,
             10,
             timezone.now(),
@@ -87,7 +87,7 @@ def test_create_goal_unauthenticated(client):
             200,
         ),
         (
-            "testrepo",
+            "GithubMotivator",
             10,
             0,
             timezone.now(),
@@ -95,7 +95,7 @@ def test_create_goal_unauthenticated(client):
             200,
         ),
         (
-            "testrepo1",
+            "GithubMotivator",
             10,
             10,
             timezone.now() - timezone.timedelta(days=7),
@@ -103,7 +103,7 @@ def test_create_goal_unauthenticated(client):
             200,
         ),
         (
-            "testrepo2",
+            "GithubMotivator",
             10,
             10,
             timezone.now() - timezone.timedelta(days=7),
@@ -111,7 +111,7 @@ def test_create_goal_unauthenticated(client):
             200,
         ),
         (
-            "testrepo3",
+            "GithubMotivator",
             10,
             10,
             timezone.now(),

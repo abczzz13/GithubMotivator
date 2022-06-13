@@ -3,40 +3,45 @@ import pytest
 from django.utils import timezone
 from motivator.forms import GoalForm
 
+now = timezone.now()
+last_week = timezone.now() - timezone.timedelta(days=7)
+next_week = timezone.now() + timezone.timedelta(days=7)
+last_day = timezone.now() - timezone.timedelta(days=1)
+
 
 @pytest.mark.parametrize(
     "repo, commit_goal, amount, start_date, end_date, assertion",
     [
         (
-            "testrepo",
+            "GithubMotivator",
             10,
             10,
-            timezone.now(),
-            timezone.now() + timezone.timedelta(days=7),
+            now,
+            next_week,
             True,
         ),
         (
             "",
             10,
             10,
-            timezone.now(),
-            timezone.now() + timezone.timedelta(days=7),
+            now,
+            next_week,
             False,
         ),
         (
             "testrepo",
             "",
             10,
-            timezone.now(),
-            timezone.now() + timezone.timedelta(days=7),
+            now,
+            next_week,
             False,
         ),
         (
             "testrepo",
             10,
             "",
-            timezone.now(),
-            timezone.now() + timezone.timedelta(days=7),
+            now,
+            next_week,
             False,
         ),
         (
@@ -44,48 +49,48 @@ from motivator.forms import GoalForm
             10,
             10,
             "",
-            timezone.now() + timezone.timedelta(days=7),
+            next_week,
             False,
         ),
-        ("testrepo", 10, 10, timezone.now(), "", False),
+        ("testrepo", 10, 10, now, "", False),
         (
             "testrepo",
             0,
             10,
-            timezone.now(),
-            timezone.now() + timezone.timedelta(days=7),
+            now,
+            next_week,
             False,
         ),
         (
             "testrepo",
             10,
             0,
-            timezone.now(),
-            timezone.now() + timezone.timedelta(days=7),
+            now,
+            next_week,
             False,
         ),
         (
             "testrepo",
             10,
             10,
-            timezone.now() - timezone.timedelta(days=7),
-            timezone.now() + timezone.timedelta(days=7),
+            last_week,
+            next_week,
             False,
         ),
         (
             "testrepo",
             10,
             10,
-            timezone.now() - timezone.timedelta(days=7),
-            timezone.now() - timezone.timedelta(days=1),
+            last_week,
+            last_day,
             False,
         ),
         (
             "testrepo",
             10,
             10,
-            timezone.now(),
-            timezone.now() - timezone.timedelta(days=1),
+            now,
+            last_day,
             False,
         ),
     ],
@@ -103,7 +108,5 @@ def test_goal_form(repo, commit_goal, amount, start_date, end_date, assertion):
         "start_date": start_date,
         "end_date": end_date,
     }
-
-    form = GoalForm(data)
-
+    form = GoalForm("abczzz13", data)
     assert form.is_valid() == assertion
