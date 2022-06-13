@@ -1,4 +1,6 @@
 """Utility functions for the the GithubMotivator App"""
+from typing import Union
+
 import requests
 from requests.adapters import HTTPAdapter, Retry
 from requests.exceptions import (
@@ -9,7 +11,9 @@ from requests.exceptions import (
 )
 
 
-def get_response_from_url(url: str) -> dict[str, str] or requests.Response:
+def get_response_from_url(
+    url: str,
+) -> Union[dict[str, str], requests.Response]:
     """Making a request to an url to get the response"""
     retry_strategy = Retry(
         total=3,

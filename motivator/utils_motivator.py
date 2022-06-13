@@ -13,9 +13,9 @@ def parse_github_datetime(event_datetime: str) -> datetime:
     github_time = timezone.make_aware(
         datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S")
     )
-    github_time_correction = timezone.timedelta(hours=2)
-
-    return github_time + github_time_correction
+    # github_time_correction = timezone.timedelta(hours=2)
+    corrected_github_time = github_time + timezone.timedelta(hours=2)
+    return corrected_github_time
 
 
 def count_commits(goal: Goal) -> int:

@@ -21,7 +21,7 @@
             <tr>
                 <th scope="row"><a href="{% url 'goal-detail' goal.goal.pk %}">{{ goal.goal.pk }}</a></th>
                 <td><a href="https://github.com/{{ goal.goal.github_username }}/{{ goal.goal.repo}}/"
-                        target="_blank">{{ goal.repo }}<a></td>
+                        target="_blank">{{ goal.goal.repo }}<a></td>
                 <td>{{ goal.goal.commit_goal }}</td>
                 <td>{{ goal.goal.amount }}</td>
                 <td>{{ goal.goal.start_date }}</td>
