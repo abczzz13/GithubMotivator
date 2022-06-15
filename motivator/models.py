@@ -74,5 +74,5 @@ class Payment(models.Model):
     payment_status = models.CharField(
         max_length=1, choices=PAYMENT_STATUS_CHOICES, default="o"
     )
-    datetime = models.DateTimeField()
+    datetime = models.DateTimeField(default=timezone.now)
     goal = models.ForeignKey(Goal, on_delete=models.PROTECT, null=True)

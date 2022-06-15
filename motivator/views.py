@@ -1,20 +1,30 @@
 from typing import Any
 
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import JsonResponse
 from django.shortcuts import render
-from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DetailView, ListView
+from mollie.api.client import Client
 from users.models import UserMotivator
 
 from motivator.forms import GoalForm
-from motivator.models import Goal
+from motivator.models import Goal, Payment
 from motivator.utils_motivator import count_commits
 
 
 def index(request):
     """View for the homepage of the website"""
     return render(request, "motivator/index.html", {"title": "Home"})
+
+
+@csrf_exempt
+def mollie_webhook(request) -> JsonResponse:
+    id = request.POST["id"]
+    print(id)
+    return JsonResponse({"response": "Success!"})
 
 
 class ListGoal(LoginRequiredMixin, ListView):
@@ -64,10 +74,43 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return kwargs
 
     def get_success_url(self):
-        return reverse("goal-list")
+        payment_url = self.start_payment()
+        return payment_url
 
     def form_valid(self, form):
         """Adds the extra fields to save in the Model"""
         form.instance.user = self.request.user
         form.instance.github_username = self.github_username
         return super(CreateGoal, self).form_valid(form)
+
+    def amount_to_str(self, amount: int) -> str:
+        return str(f"{amount:.2f}")
+
+    def start_payment(self) -> str:
+        mollie_client = Client()
+        mollie_client.set_api_key(settings.MOLLIE_API_KEY)
+
+        payload = {
+            "amount": {
+                "currency": "EUR",
+                "value": self.amount_to_str(self.object.amount),
+            },
+            "description": f"Goal #{self.object.pk} ",
+            "redirectUrl": "http://localhost:8000/goals/",  # reverse("goal-list" f"{settings.MOLLIE_PUBLIC_URL}/goals/",
+            "webhookUrl": settings.MOLLIE_PUBLIC_URL,
+            "metadata": {
+                "goal_id": self.object.pk,
+                "user_id": self.object.user.id,
+            },
+        }
+        mollie_payment = mollie_client.payments.create(payload)
+
+        payment = Payment(
+            mollie_id=mollie_payment["id"],
+            amount_eur=mollie_payment["amount"]["value"],
+            checkout_url=mollie_payment["_links"]["checkout"]["href"],
+            payment_status="o",
+            goal=self.object,
+        )
+        payment.save()
+        return payment.checkout_url

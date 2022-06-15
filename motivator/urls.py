@@ -1,10 +1,12 @@
 """Motivator App URL Configuration"""
 from django.urls import path
-from .views import index, CreateGoal, ListGoal, DetailGoal
+
+from .views import CreateGoal, DetailGoal, ListGoal, index, mollie_webhook
 
 urlpatterns = [
     path("", index, name="motivator-index"),
     path("goals/", ListGoal.as_view(), name="goal-list"),
     path("goals/new/", CreateGoal.as_view(), name="goal-create"),
     path("goals/<pk>/", DetailGoal.as_view(), name="goal-detail"),
+    path("mollie/", mollie_webhook, name="mollie_webhook"),
 ]
