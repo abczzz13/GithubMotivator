@@ -32,8 +32,7 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["ffc1-86-83-204-47.eu.ngrok.io", "localhost"]
-
+ALLOWED_HOSTS = [env.str("MOLLIE_PUBLIC_URL")[8:], "localhost"]
 
 # Application definition
 
@@ -155,3 +154,6 @@ EMAIL_HOST_USER = env.str("EMAIL_USER")
 EMAIL_HOST_PASSWORD = env.str("EMAIL_PASSWORD")
 
 DEBUG_TOOLBAR_CONFIG = {"SHOW_TOOLBAR_CALLBACK": lambda _request: DEBUG}
+
+MOLLIE_API_KEY = env.str("MOLLIE_API_KEY")
+MOLLIE_PUBLIC_URL = env.str("MOLLIE_PUBLIC_URL")
