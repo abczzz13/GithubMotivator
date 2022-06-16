@@ -22,8 +22,18 @@ def index(request):
 
 @csrf_exempt
 def mollie_webhook(request) -> JsonResponse:
-    id = request.POST["id"]
-    print(id)
+    """Mollie Webhook for updating the payment status"""
+    if "id" not in request.POST:
+        return JsonResponse({"response": "Error! No id found"})
+    payment_id = request.POST["id"]
+
+    mollie_client = Client()
+    mollie_client.set_api_key(settings.MOLLIE_API_KEY)
+
+    payment = mollie_client.payments.get(payment_id)
+    Payment.objects.filter(mollie_id=payment_id).update(
+        payment_status=Payment.process_payment_status(payment["status"])
+    )
     return JsonResponse({"response": "Success!"})
 
 
@@ -76,6 +86,7 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return kwargs
 
     def get_success_url(self):
+        """Starts the Mollie payment process and redirects to the Mollie payment url"""
         payment_url = self.start_payment()
         return payment_url
 
@@ -86,9 +97,11 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         return super(CreateGoal, self).form_valid(form)
 
     def amount_to_str(self, amount: int) -> str:
+        """Convert amount to a str for creating a Mollie payment"""
         return str(f"{amount:.2f}")
 
     def start_payment(self) -> str:
+        """Create payment with Mollie and return payment url"""
         mollie_client = Client()
         mollie_client.set_api_key(settings.MOLLIE_API_KEY)
 
@@ -98,8 +111,8 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
                 "value": self.amount_to_str(self.object.amount),
             },
             "description": f"Goal #{self.object.pk} ",
-            "redirectUrl": "http://localhost:8000/goals/",  # reverse("goal-list" f"{settings.MOLLIE_PUBLIC_URL}/goals/",
-            "webhookUrl": settings.MOLLIE_PUBLIC_URL,
+            "redirectUrl": "http://localhost:8000/goals/",
+            "webhookUrl": f"{settings.MOLLIE_PUBLIC_URL}/mollie/",
             "metadata": {
                 "goal_id": self.object.pk,
                 "user_id": self.object.user.id,

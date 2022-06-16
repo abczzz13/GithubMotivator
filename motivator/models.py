@@ -72,7 +72,18 @@ class Payment(models.Model):
     amount_eur = models.CharField(max_length=255)
     checkout_url = models.URLField()
     payment_status = models.CharField(
-        max_length=1, choices=PAYMENT_STATUS_CHOICES, default="o"
+        max_length=1,
+        choices=PAYMENT_STATUS_CHOICES,
+        default=PAYMENT_STATUS_OPEN,
     )
     datetime = models.DateTimeField(default=timezone.now)
     goal = models.ForeignKey(Goal, on_delete=models.PROTECT, null=True)
+
+    @classmethod
+    def process_payment_status(cls, mollie_status: str):
+        for choice in cls.PAYMENT_STATUS_CHOICES:
+            if choice[1] == mollie_status:
+                return choice[0]
+
+    def __str__(self) -> str:
+        return f"Payment {self.mollie_id}: EUR {self.amount_eur} on date: {self.datetime} for goal: {self.goal} with status: {self.payment_status}"
