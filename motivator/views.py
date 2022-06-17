@@ -3,16 +3,22 @@ from typing import Any
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DetailView, ListView
-from mollie.api.client import Client
 from users.models import UserMotivator
 
+<<<<<<< HEAD
 from motivator.forms import GoalForm
 from motivator.models import Goal, Payment
 from motivator.utils_motivator import count_commits
+=======
+from .forms import GoalForm
+from .models import Goal, Payment
+from .payments import MolliePaymentProvider
+from .utils_motivator import count_commits
+>>>>>>> 870d39d (Added PaymentProvider class and refactored the views)
 
 
 def index(request):
@@ -21,20 +27,24 @@ def index(request):
 
 
 @csrf_exempt
-def mollie_webhook(request) -> JsonResponse:
+def mollie_webhook(request) -> HttpResponse:
     """Mollie Webhook for updating the payment status"""
+
     if "id" not in request.POST:
-        return JsonResponse({"response": "Error! No id found"})
-    payment_id = request.POST["id"]
+        return HttpResponse(status=400)
+    id = request.POST["id"]
 
-    mollie_client = Client()
-    mollie_client.set_api_key(settings.MOLLIE_API_KEY)
+    payment_client = MolliePaymentProvider()
+    payment = payment_client.get_payment_info(id)
 
-    payment = mollie_client.payments.get(payment_id)
-    Payment.objects.filter(mollie_id=payment_id).update(
-        payment_status=Payment.process_payment_status(payment["status"])
-    )
-    return JsonResponse({"response": "Success!"})
+    if payment["id"] == id and payment["profileId"] == settings.MOLLIE_PROFILE_ID:
+        Payment.objects.filter(mollie_id=id).update(
+            payment_status=Payment.process_payment_status(payment["status"])
+        )
+
+    return HttpResponse(status=200)
+    # mollie payment status of failed causes the the mollie payment link to go invalid
+    # Remake the payment link if payment has failed?
 
 
 class ListGoal(LoginRequiredMixin, ListView):
@@ -74,7 +84,7 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = GoalForm
     success_message = "Your goal has been set"
 
-    def get_form_kwargs(self):
+    def get_form_kwargs(self) -> dict[str, Any]:
         """Get the extra parameters for the form to validate the repo url"""
         self.github_username = (
             UserMotivator.objects.filter(user=self.request.user).first().github_username
@@ -83,10 +93,9 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         kwargs["github_username"] = self.github_username
         return kwargs
 
-    def get_success_url(self):
+    def get_success_url(self) -> str:
         """Starts the Mollie payment process and redirects to the Mollie payment url"""
-        payment_url = self.start_payment()
-        return payment_url
+        return self.create_payment_url()
 
     def form_valid(self, form):
         """Adds the extra fields to save in the Model"""
@@ -94,36 +103,9 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         form.instance.github_username = self.github_username
         return super(CreateGoal, self).form_valid(form)
 
-    def amount_to_str(self, amount: int) -> str:
-        """Convert amount to a str for creating a Mollie payment"""
-        return str(f"{amount:.2f}")
-
-    def start_payment(self) -> str:
+    def create_payment_url(self) -> str:
         """Create payment with Mollie and return payment url"""
-        mollie_client = Client()
-        mollie_client.set_api_key(settings.MOLLIE_API_KEY)
-
-        payload = {
-            "amount": {
-                "currency": "EUR",
-                "value": self.amount_to_str(self.object.amount),
-            },
-            "description": f"Goal #{self.object.pk} ",
-            "redirectUrl": "http://localhost:8000/goals/",
-            "webhookUrl": f"{settings.MOLLIE_PUBLIC_URL}/mollie/",
-            "metadata": {
-                "goal_id": self.object.pk,
-                "user_id": self.object.user.id,
-            },
-        }
-        mollie_payment = mollie_client.payments.create(payload)
-
-        payment = Payment(
-            mollie_id=mollie_payment["id"],
-            amount_eur=mollie_payment["amount"]["value"],
-            checkout_url=mollie_payment["_links"]["checkout"]["href"],
-            payment_status="o",
-            goal=self.object,
-        )
-        payment.save()
+        payment_client = MolliePaymentProvider()
+        mollie_payment = payment_client.create_payment(self.object)
+        payment = payment_client.save_payment_into_db(mollie_payment, self.object)
         return payment.checkout_url
