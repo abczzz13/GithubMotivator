@@ -32,12 +32,7 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-<<<<<<< HEAD
-ALLOWED_HOSTS = ["localhost"]
-
-=======
 ALLOWED_HOSTS = [env.str("MOLLIE_PUBLIC_URL")[8:], "localhost"]
->>>>>>> 03c4424 (Create payment added to goal form)
 
 # Application definition
 
