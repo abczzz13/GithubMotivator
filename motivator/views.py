@@ -1,8 +1,9 @@
-from typing import Any
+from typing import Any, Union
 
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Subquery
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -37,8 +38,6 @@ def mollie_webhook(request) -> HttpResponse:
         )
 
     return HttpResponse(status=200)
-    # mollie payment status of failed causes the the mollie payment link to go invalid
-    # Remake the payment link if payment has failed?
 
 
 class ListGoal(LoginRequiredMixin, ListView):
@@ -48,15 +47,54 @@ class ListGoal(LoginRequiredMixin, ListView):
     context_object_name = "goals"
 
     def get_queryset(self):
-        return Goal.objects.filter(user=self.request.user)
+        return self.get_paid_goals()
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        """Add context to provide the data to the template"""
         context = super().get_context_data(**kwargs)
+
+        # Add commit count
         context["commit_goals"] = []
         for goal in context["goals"]:
             commit_goal = {"goal": goal, "count": count_commits(goal)}
             context["commit_goals"].append(commit_goal)
+
+        # Add unpaid goals with payment links
+        context["unpaid_goals"] = []
+        for goal in self.get_unpaid_goals():
+            unpaid_goal = {"payment_link": self.get_or_create_payment(goal), "goal": goal}
+            context["unpaid_goals"].append(unpaid_goal)
+
         return context
+
+    def get_paid_goals(self):
+        """Retrieve all paid goals for current user"""
+        user_goals = Goal.objects.filter(user=self.request.user)
+        paid_goals = Payment.objects.filter(
+            goal__in=user_goals.values("id"),
+            payment_status="p",
+        )
+        return Goal.objects.filter(id__in=paid_goals.values("goal"))
+
+    def get_unpaid_goals(self):
+        """Retrieve all unpaid goals for current user"""
+        # Think about goals without a relationship with a payment
+        user_goals = Goal.objects.filter(user=self.request.user)
+        unpaid_goals = Payment.objects.filter(
+            goal__in=user_goals.values("id"),
+        ).exclude(payment_status="p")
+        return Goal.objects.filter(id__in=unpaid_goals.values("goal"))
+
+    def get_or_create_payment(self, goal: Goal) -> str:
+        """Returns payment link if still valid, or creates new payment"""
+        payment = Payment.objects.filter(goal=goal, payment_status="o").first()
+        if payment:
+            return payment.checkout_url
+        else:
+            payment_client = MolliePaymentProvider()
+            mollie_payment = payment_client.create_payment(goal)
+            payment = payment_client.save_payment_into_db(mollie_payment, goal)
+            return payment.checkout_url
 
 
 class DetailGoal(LoginRequiredMixin, DetailView):
