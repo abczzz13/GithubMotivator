@@ -2,8 +2,14 @@ from typing import Any
 
 from django.conf import settings
 from mollie.api.client import Client
+from mollie.api.error import RequestError
 
 from .models import Goal, Payment
+
+"""
+Errors:
+- mollie.api.error.RequestError
+"""
 
 
 class MolliePaymentProvider:

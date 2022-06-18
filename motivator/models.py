@@ -18,18 +18,10 @@ class Goal(models.Model):
     ]
     github_username = models.CharField(max_length=255)
     repo = models.CharField(max_length=255, validators=[MinLengthValidator(3)])
-    commit_goal = models.PositiveIntegerField(
-        validators=[MinValueValidator(1)]
-    )
-    amount = models.DecimalField(
-        max_digits=6, decimal_places=2, validators=[MinValueValidator(1)]
-    )
-    status = models.CharField(
-        max_length=1, choices=GOAL_STATUS_CHOICES, default="i"
-    )
-    start_date = models.DateTimeField(
-        default=timezone.now, validators=[date_validator_min]
-    )
+    commit_goal = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    amount = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(1)])
+    status = models.CharField(max_length=1, choices=GOAL_STATUS_CHOICES, default="i")
+    start_date = models.DateTimeField(default=timezone.now, validators=[date_validator_min])
     end_date = models.DateTimeField(validators=[date_validator_min])
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
@@ -37,13 +29,9 @@ class Goal(models.Model):
         if self.end_date and self.start_date:
             if self.end_date < self.start_date:
                 raise ValidationError("End date cannot be before start date.")
-            elif self.start_date < timezone.now() - timezone.timedelta(
-                minutes=30
-            ):
+            elif self.start_date < timezone.now() - timezone.timedelta(minutes=30):
                 raise ValidationError("Start date cannot be in the past")
-            elif self.end_date < timezone.now() - timezone.timedelta(
-                minutes=30
-            ):
+            elif self.end_date < timezone.now() - timezone.timedelta(minutes=30):
                 raise ValidationError("End date cannot be in the past")
 
     def save(self, *args, **kwargs):
@@ -77,7 +65,7 @@ class Payment(models.Model):
         default=PAYMENT_STATUS_OPEN,
     )
     datetime = models.DateTimeField(default=timezone.now)
-    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, null=True)
+    goal = models.ForeignKey(Goal, on_delete=models.PROTECT, null=True, related_name="payment")
 
     @classmethod
     def process_payment_status(cls, mollie_status: str):

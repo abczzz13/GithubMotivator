@@ -33,4 +33,37 @@
         </tbody>
     </table>
 </div>
+<h1>Unpaid Goals</h1>
+<div class="content-section">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Repo</th>
+                <th scope="col">Commits</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">Deadline</th>
+                <th scope="col">Make Payment</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if unpaid_goals %}
+            {% for goal in unpaid_goals %}
+            <tr>
+                <th scope="row"><a href="{% url 'goal-detail' goal.goal.pk %}">{{ goal.goal.pk }}</a></th>
+                <td><a href="https://github.com/{{ goal.goal.github_username }}/{{ goal.goal.repo}}/"
+                        target="_blank">{{ goal.goal.repo }}<a></td>
+                <td>{{ goal.goal.commit_goal }}</td>
+                <td>{{ goal.goal.amount }}</td>
+                <td>{{ goal.goal.start_date }}</td>
+                <td>{{ goal.goal.end_date }}</td>
+                <td><a href="{{ goal.payment_link }}"><button type="button" class="btn btn-primary">Pay
+                            here</button></a></td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
