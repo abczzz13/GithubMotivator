@@ -9,16 +9,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DetailView, ListView
 from users.models import UserMotivator
 
-<<<<<<< HEAD
 from motivator.forms import GoalForm
 from motivator.models import Goal, Payment
+from motivator.payments import MolliePaymentProvider
 from motivator.utils_motivator import count_commits
-=======
-from .forms import GoalForm
-from .models import Goal, Payment
-from .payments import MolliePaymentProvider
-from .utils_motivator import count_commits
->>>>>>> 870d39d (Added PaymentProvider class and refactored the views)
 
 
 def index(request):
