@@ -35,8 +35,14 @@ def count_commits(goal: Goal) -> int:
             if "commits" in event["payload"]:
                 for commit in event["payload"]["commits"]:
                     count += 1
+<<<<<<< HEAD
         else:
             # Github API orders the data from recent to older
+=======
+        elif event_datetime < goal.start_date:
+            # Github API seems to sort the data from most recent to older
+            # Therefore, we can stop iterating once a data is outside the scope
+>>>>>>> 86dc4d5 (Further refactoring)
             return count
 
     return count
