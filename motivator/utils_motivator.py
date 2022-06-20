@@ -10,9 +10,7 @@ def parse_github_datetime(event_datetime: str) -> datetime:
     """Parse the created_at field from github api into datetime object"""
     date_time = event_datetime[:-1].replace("T", " ")
 
-    github_time = timezone.make_aware(
-        datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S")
-    )
+    github_time = timezone.make_aware(datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S"))
     # github_time_correction = timezone.timedelta(hours=2)
     corrected_github_time = github_time + timezone.timedelta(hours=2)
     return corrected_github_time
@@ -37,7 +35,7 @@ def count_commits(goal: Goal) -> int:
             if "commits" in event["payload"]:
                 for commit in event["payload"]["commits"]:
                     count += 1
-        else:
+        elif event_datetime < goal.start_date:
             # Github API seems to sort the data from most recent to older
             # Therefore, we can stop iterating once a data is outside the scope
             return count

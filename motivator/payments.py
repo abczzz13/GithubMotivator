@@ -2,14 +2,16 @@ from typing import Any
 
 from django.conf import settings
 from mollie.api.client import Client
-from mollie.api.error import RequestError
+from mollie.api.error import RequestError, RequestSetupError
 
 from .models import Goal, Payment
 
 """
 Errors:
-- mollie.api.error.RequestError
+- mollie.api.error.RequestError -> no connection
+- mollie.api.error.RequestSetupError -> api key not set
 """
+# class PaymentProvider:
 
 
 class MolliePaymentProvider:
@@ -18,15 +20,17 @@ class MolliePaymentProvider:
     def __init__(self) -> None:
         self.client.set_api_key(settings.MOLLIE_API_KEY)
 
-    def create_payment(self, goal: Goal):
+    def __str__(self) -> str:
+        return "MolliePaymentProvider"
+
+    def create_payment(self, goal: Goal) -> dict[str, Any]:
         """Create Mollie payment"""
-        # catching errors?
         payload = {
             "amount": {
                 "currency": "EUR",
                 "value": self.amount_to_str(goal.amount),
             },
-            "description": f"Goal #{goal.pk} ",
+            "description": f"Goal #{goal.pk}",
             "redirectUrl": "http://localhost:8000/goals/",
             "webhookUrl": f"{settings.MOLLIE_PUBLIC_URL}/mollie/",
             "metadata": {
@@ -35,6 +39,7 @@ class MolliePaymentProvider:
             },
         }
         payment = self.client.payments.create(payload)
+        Payment.save_mollie_payment_into_db(payment, goal)
         return payment
 
     def get_payment_info(self, id: str):
@@ -59,17 +64,27 @@ class MolliePaymentProvider:
         # verify if refund was created successfully?
         return refund["id"]
 
-    def save_payment_into_db(self, mollie_payment: dict[str, Any], goal: Goal) -> Payment:
-        """Save the mollie payment into the DB"""
-        payment = Payment(
-            mollie_id=mollie_payment["id"],
-            amount_eur=mollie_payment["amount"]["value"],
-            checkout_url=mollie_payment["_links"]["checkout"]["href"],
-            payment_status="o",
-            goal=goal,
-        )
-        payment.save()
-        return payment
+    @staticmethod
+    # Shouldn't be a static method as it uses an instance of itself
+    def get_or_create_payment(goal: Goal) -> str:
+        """Returns payment link if still valid, or creates new payment"""
+        payment = Payment.objects.filter(goal=goal, payment_status="o").first()
+        if not payment:
+            payment_client = MolliePaymentProvider()
+            payment = payment_client.create_payment(goal)
+        return payment.checkout_url
+
+    # def save_payment_into_db(self, mollie_payment: dict[str, Any], goal: Goal) -> Payment:
+    #     """Save the mollie payment into the DB"""
+    #     payment = Payment(
+    #         mollie_id=mollie_payment["id"],
+    #         amount_eur=mollie_payment["amount"]["value"],
+    #         checkout_url=mollie_payment["_links"]["checkout"]["href"],
+    #         payment_status="o",
+    #         goal=goal,
+    #     )
+    #     payment.save()
+    #     return payment
 
     @staticmethod
     def amount_to_str(amount: int) -> str:

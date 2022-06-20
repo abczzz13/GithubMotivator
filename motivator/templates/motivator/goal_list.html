@@ -58,8 +58,12 @@
                 <td>{{ goal.goal.amount }}</td>
                 <td>{{ goal.goal.start_date }}</td>
                 <td>{{ goal.goal.end_date }}</td>
+                {% if goal.goal.error %}
+                <td>{{ goal.goal.error }}</td>
+                {% else %}
                 <td><a href="{{ goal.payment_link }}"><button type="button" class="btn btn-primary">Pay
                             here</button></a></td>
+                {% endif %}
             </tr>
             {% endfor %}
             {% endif %}

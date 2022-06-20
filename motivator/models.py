@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
@@ -72,6 +74,27 @@ class Payment(models.Model):
         for choice in cls.PAYMENT_STATUS_CHOICES:
             if choice[1] == mollie_status:
                 return choice[0]
+
+    @staticmethod
+    def save_mollie_payment_into_db(mollie_payment: dict[str, Any], goal: Goal) -> "Payment":
+        """Save the mollie payment into the DB"""
+        payment = Payment(
+            mollie_id=mollie_payment["id"],
+            amount_eur=float(mollie_payment["amount"]["value"]),
+            checkout_url=mollie_payment["_links"]["checkout"]["href"],
+            payment_status="o",
+            goal=goal,
+        )
+        payment.save()
+        return payment
+
+    # def get_or_create_payment(self, goal: Goal) -> str:
+    #     """Returns payment link if still valid, or creates new payment"""
+    #     payment = Payment.objects.filter(goal=goal, payment_status="o").first()
+    #     if not payment:
+    #         payment_client = MolliePaymentProvider()
+    #         payment = payment_client.create_payment(goal)
+    #     return payment.checkout_url
 
     def __str__(self) -> str:
         return f"Payment {self.mollie_id}: EUR {self.amount_eur} on date: {self.datetime} for goal: {self.goal} with status: {self.payment_status}"
