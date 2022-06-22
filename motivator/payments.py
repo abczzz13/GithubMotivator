@@ -23,7 +23,7 @@ class MolliePaymentProvider:
     def __str__(self) -> str:
         return "MolliePaymentProvider"
 
-    def create_payment(self, goal: Goal) -> dict[str, Any]:
+    def create_payment(self, goal: Goal) -> Payment:
         """Create Mollie payment"""
         payload = {
             "amount": {
@@ -38,31 +38,31 @@ class MolliePaymentProvider:
                 "user_id": goal.user.id,
             },
         }
-        payment = self.client.payments.create(payload)
-        Payment.save_mollie_payment_into_db(payment, goal)
+        mollie_payment = self.client.payments.create(payload)
+        payment = Payment.save_mollie_payment_into_db(mollie_payment, goal)
         return payment
 
-    def get_payment_info(self, id: str):
+    def get_payment_info(self, id: str) -> dict[str, Any]:
         """Get payment info from Mollie"""
         # catching errors?
         payment = self.client.payments.get(id)
         return payment
 
-    def create_refund(self, id: str) -> str:
+    def create_refund(self, id: str) -> dict[str, Any]:
         """Create Mollie refund"""
         payment = self.get_payment_info(id)
-
         payload = {
             "amount": {
                 "currency": "EUR",
-                "value": self.amount_to_str(payment["amount"]["value"]),
+                "value": payment["amount"]["value"],
             },
             "description": f"Refund for {payment['description']}",
             "metadata": payment["metadata"],
         }
         refund = self.client.payment_refunds.on(payment).create(payload)
         # verify if refund was created successfully?
-        return refund["id"]
+        # what to with saving refunds in the DB?
+        return refund
 
     @staticmethod
     # Shouldn't be a static method as it uses an instance of itself
