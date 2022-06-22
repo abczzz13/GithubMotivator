@@ -6,6 +6,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DetailView, ListView
 from mollie.api.error import RequestError
@@ -63,11 +64,17 @@ class ListGoal(LoginRequiredMixin, ListView):
         context["unpaid_goals"] = []
         for goal in self.get_unpaid_goals():
             unpaid_goal = {"goal": goal}
-            try:
-                unpaid_goal["payment_link"] = MolliePaymentProvider.get_or_create_payment(goal)
-            except RequestError:
-                unpaid_goal["error"] = "Error with creating payment"
             context["unpaid_goals"].append(unpaid_goal)
+
+        # Add unpaid goals with payment links
+        # context["unpaid_goals"] = []
+        # for goal in self.get_unpaid_goals():
+        #     unpaid_goal = {"goal": goal}
+        #     try:
+        #         unpaid_goal["payment_link"] = MolliePaymentProvider.get_or_create_payment(goal)
+        #     except RequestError:
+        #         unpaid_goal["error"] = "Error with creating payment"
+        #     context["unpaid_goals"].append(unpaid_goal)
 
         return context
 
@@ -100,15 +107,6 @@ class ListGoal(LoginRequiredMixin, ListView):
         )
         return user_goals.exclude(id__in=paid_goals.values("goal"))
 
-    # def get_or_create_payment(self, goal: Goal) -> str:
-    #     # Think about grouping the unpaid goals in a db call to get the open payment
-    #     """Returns payment link if still valid, or creates new payment"""
-    #     payment = Payment.objects.filter(goal=goal, payment_status="o").first()
-    #     if not payment:
-    #         payment_client = MolliePaymentProvider()
-    #         payment = payment_client.create_payment(goal)
-    #     return payment.checkout_url
-
 
 class DetailGoal(LoginRequiredMixin, DetailView):
     """View where the user can see the details of a specified Goal"""
@@ -123,32 +121,32 @@ class DetailGoal(LoginRequiredMixin, DetailView):
         # Add commit count
         context["commit_count"] = count_commits(context["goal"])
 
-        # Add payment link if unpaid
-        payments = self.get_payments()
-        for payment in payments:
+        # Add payment status
+        for payment in self.get_payments():
             if payment.payment_status == "p":
+                context["unpaid"] = False
                 return context
-            if payment.payment_status == "o":
-                context["payment_link"] = payment.checkout_url
-
-        if "payment_link" not in context:
-            try:
-                context["payment_link"] = MolliePaymentProvider.get_or_create_payment(self.object)
-            except RequestError:
-                context["error"] = "Error with creating payment"
+        context["unpaid"] = True
         return context
+
+        # Add payment link if unpaid
+        # payments = self.get_payments()
+        # for payment in payments:
+        #     if payment.payment_status == "p":
+        #         return context
+        #     if payment.payment_status == "o":
+        #         context["payment_link"] = payment.checkout_url
+
+        # if "payment_link" not in context:
+        #     try:
+        #         context["payment_link"] = MolliePaymentProvider.get_or_create_payment(self.object)
+        #     except RequestError:
+        #         context["error"] = "Error with creating payment"
+        # return context
 
     def get_payments(self) -> QuerySet[Payment]:
         """Retrieves all the payments related to the Goal"""
         return Payment.objects.filter(goal=self.object)
-
-    # def get_or_create_payment(self) -> str:
-    #     """Returns payment link if still valid, or creates new payment"""
-    #     payment = Payment.objects.filter(goal=self.object, payment_status="o").first()
-    #     if not payment:
-    #         payment_client = MolliePaymentProvider()
-    #         payment = payment_client.create_payment(self.object)
-    #     return payment.checkout_url
 
 
 class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -169,7 +167,8 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     def get_success_url(self) -> str:
         """Starts the Mollie payment process and redirects to the Mollie payment url"""
-        return self.create_payment_url()
+        # return self.create_payment_url()
+        return reverse("get-payment-link", args=[self.object.pk])
 
     def form_valid(self, form):
         """Adds the extra fields to save in the Model"""
@@ -177,12 +176,27 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         form.instance.github_username = self.github_username
         return super(CreateGoal, self).form_valid(form)
 
-    def create_payment_url(self) -> str:
-        """Create payment with Mollie and return payment url"""
-        payment_client = MolliePaymentProvider()
-        try:
-            payment = payment_client.create_payment(self.object)
-            return payment.checkout_url
-        except RequestError:
-            # What to do in this situation?
-            return redirect("goal-list")
+    # def create_payment_url(self) -> str:
+    #     """Create payment with Mollie and return payment url"""
+    #     payment_client = MolliePaymentProvider()
+    #     try:
+    #         payment = payment_client.create_payment(self.object)
+    #         return payment.checkout_url
+    #     except RequestError:
+    #         # What to do in this situation?
+    #         return redirect("goal-list")
+
+
+def get_payment_link(request, pk: int) -> HttpResponse:
+    """Retrieves or creates the Mollie payment link"""
+    goal = Goal.objects.filter(id=pk).first()
+    if goal is None:
+        return redirect("goal-list")
+    payment_client = MolliePaymentProvider()
+    try:
+        payment_link = payment_client.get_or_create_payment(goal)
+    except RequestError:
+        # What to do in this situation?
+        # maybe a seperate fallback page?
+        return redirect("goal-list")
+    return redirect(payment_link)
