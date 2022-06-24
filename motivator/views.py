@@ -9,7 +9,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DetailView, ListView
-from mollie.api.error import RequestError
+from mollie.api.error import IdentifierError, RequestError
 from users.models import UserMotivator
 
 from motivator.forms import GoalForm
@@ -31,7 +31,10 @@ def mollie_webhook(request) -> HttpResponse:
     id = request.POST["id"]
 
     payment_client = MolliePaymentProvider()
-    payment = payment_client.get_payment_info(id)
+    try:
+        payment = payment_client.get_payment_info(id)
+    except IdentifierError:
+        return HttpResponse(status=400)
 
     if payment["id"] == id and payment["profileId"] == settings.MOLLIE_PROFILE_ID:
         Payment.objects.filter(mollie_id=id).update(
