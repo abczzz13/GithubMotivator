@@ -1,7 +1,6 @@
 """Testing the view functions of the Motivator App"""
 import pytest
 from django.urls import reverse
-from mollie.api.resources.payments import Payments
 from motivator.models import Payment
 from motivator.views import (
     CreateGoal,
@@ -114,8 +113,6 @@ def test_motivator_webhook_valid(patched_get, rf, payment):
     WHEN
     THEN
     """
-    # monkeypatch.setattr(Payments, "get", MockPaymentProvider.patched_get)
-
     path = reverse("mollie-webhook")
     request = rf.post(path, data={"id": payment.payment_id})
 

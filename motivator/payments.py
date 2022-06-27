@@ -25,7 +25,7 @@ class PaymentProvider(ABC):
         """Get payment info and return as json"""
 
     @abstractmethod
-    def create_refund(self, id: str) -> Refund:
+    def create_refund(self, payment: Payment, goal: Goal) -> Refund:
         """Create refund and return the refund as json"""
 
     @abstractmethod
