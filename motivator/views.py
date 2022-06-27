@@ -7,9 +7,9 @@ from django.urls import reverse
 from django.views.generic import CreateView, DetailView, ListView
 from users.models import UserMotivator
 
-from .forms import GoalForm
-from .models import Goal
-from .utils_motivator import count_commits
+from motivator.forms import GoalForm
+from motivator.models import Goal
+from motivator.utils_motivator import count_commits
 
 
 def index(request):
@@ -57,9 +57,7 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def get_form_kwargs(self):
         """Get the extra parameters for the form to validate the repo url"""
         self.github_username = (
-            UserMotivator.objects.filter(user=self.request.user)
-            .first()
-            .github_username
+            UserMotivator.objects.filter(user=self.request.user).first().github_username
         )
         kwargs = super(CreateGoal, self).get_form_kwargs()
         kwargs["github_username"] = self.github_username

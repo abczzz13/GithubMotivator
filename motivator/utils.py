@@ -3,12 +3,7 @@ from typing import Union
 
 import requests
 from requests.adapters import HTTPAdapter, Retry
-from requests.exceptions import (
-    HTTPError,
-    RequestException,
-    Timeout,
-    TooManyRedirects,
-)
+from requests.exceptions import HTTPError, RequestException, Timeout, TooManyRedirects
 
 
 def get_response_from_url(
@@ -31,7 +26,6 @@ def get_response_from_url(
             response = http.get(url)
             response.raise_for_status()
         except Timeout:
-            print("Retry?")
             return {"message": "Timeout"}
         except HTTPError:
             return {"message": "HTTPError"}
