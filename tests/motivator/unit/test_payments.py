@@ -1,17 +1,16 @@
 import pytest
 from motivator.models import Goal, Payment, Refund
-from motivator.payments import MolliePaymentProvider
+from motivator.payments import PaymentProvider
 
 
 @pytest.mark.django_db(transaction=True, reset_sequences=True)
-def test_create_payment_valid(patched_create, goal: Goal):
+def test_create_payment_valid(payment_client: PaymentProvider, patched_create, goal: Goal):
     """
     GIVEN
     WHEN
     THEN
     """
-    client = MolliePaymentProvider()  # Use a fixture for the client?
-    payment = client.create_payment(goal)
+    payment = payment_client.create_payment(goal)
 
     assert payment.amount_eur == goal.amount
     assert payment.goal.id == goal.pk
@@ -31,27 +30,32 @@ def test_create_payment_invalid():
 
 
 @pytest.mark.django_db
-def test_get_payment_info(patched_get):
+def test_get_payment_info(payment_client: PaymentProvider, patched_get):
     """
     GIVEN
     WHEN
     THEN
     """
-    client = MolliePaymentProvider()
-    payment = client.get_payment("tr_QdCtWBhJAD")
+    payment = payment_client.get_payment("tr_QdCtWBhJAD")
 
     assert payment["id"] == "tr_QdCtWBhJAD"
 
 
 @pytest.mark.django_db
-def test_create_refund_valid(payment, goal, patched_refund, patched_get, patched_on):
+def test_create_refund_valid(
+    payment_client: PaymentProvider,
+    payment: Payment,
+    goal: Goal,
+    patched_refund,
+    patched_get,
+    patched_on,
+):
     """
     GIVEN
     WHEN
     THEN
     """
-    client = MolliePaymentProvider()
-    refund = client.create_refund(payment, goal)
+    refund = payment_client.create_refund(payment, goal)
 
     assert refund.amount_eur == 10
     assert refund.refund_status == "o"
@@ -70,14 +74,13 @@ def test_create_refund_invalid():
 
 
 @pytest.mark.django_db
-def test_get_or_create_payment_valid(patched_create, goal):
+def test_get_or_create_payment_valid(payment_client: PaymentProvider, patched_create, goal: Goal):
     """
     GIVEN
     WHEN
     THEN
     """
-    client = MolliePaymentProvider()
-    payment_link = client.get_or_create_payment_link(goal)
+    payment_link = payment_client.get_or_create_payment_link(goal)
 
     assert payment_link == "https://www.mollie.com/checkout/select-issuer/ideal/QdCtWBhJAD"
 
@@ -92,7 +95,7 @@ def test_get_or_create_payment_invalid():
 
 
 @pytest.mark.django_db
-def test_save_payment_valid(goal):
+def test_save_payment_valid(payment_client: PaymentProvider, goal: Goal):
     """
     GIVEN a Django application configured for testing
     WHEN a payment is created with Mollie API
@@ -133,8 +136,7 @@ def test_save_payment_valid(goal):
             },
         },
     }
-    client = MolliePaymentProvider()
-    payment = client.save_payment(payment, goal)
+    payment = payment_client.save_payment(payment, goal)
 
     assert payment.payment_id == "tr_QdCtWBhJAD"
     assert payment.amount_eur == 10

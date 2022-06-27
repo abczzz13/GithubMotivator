@@ -10,8 +10,8 @@ from mollie.api.resources.base import ResourceBase
 from mollie.api.resources.payment_refunds import PaymentRefunds
 from mollie.api.resources.payments import Payments
 
-from motivator.models import Goal, Payment
-from motivator.payments import MolliePaymentProvider
+from motivator.models import Goal
+from motivator.payments import MolliePaymentProvider, PaymentProvider
 from users.models import User, UserMotivator
 
 
@@ -176,10 +176,15 @@ def goal(user):
 
 
 @pytest.fixture()
-def payment(monkeypatch: pytest.MonkeyPatch, goal):
+def payment_client():
+    return MolliePaymentProvider()
+
+
+@pytest.fixture()
+def payment(payment_client: PaymentProvider, monkeypatch: pytest.MonkeyPatch, goal):
     monkeypatch.setattr(ResourceBase, "create", MockPaymentProvider.patched_create)
-    client = MolliePaymentProvider()
-    payment = client.create_payment(goal)
+    payment_client = MolliePaymentProvider()
+    payment = payment_client.create_payment(goal)
     return payment
 
 
