@@ -38,7 +38,7 @@ def mollie_webhook(request) -> HttpResponse:
 
     # check if payment update is valid before updating DB
     if payment["id"] == id and payment["profileId"] == settings.MOLLIE_PROFILE_ID:
-        Payment.objects.filter(mollie_id=id).update(
+        Payment.objects.filter(payment_id=id).update(
             payment_status=Payment.process_payment_status(payment["status"])
         )
 

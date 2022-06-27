@@ -117,11 +117,11 @@ def test_motivator_webhook_valid(patched_get, rf, payment):
     # monkeypatch.setattr(Payments, "get", MockPaymentProvider.patched_get)
 
     path = reverse("mollie-webhook")
-    request = rf.post(path, data={"id": payment.mollie_id})
+    request = rf.post(path, data={"id": payment.payment_id})
 
     response = mollie_webhook(request)
 
-    updated_payment = Payment.objects.filter(mollie_id=payment.mollie_id).first()
+    updated_payment = Payment.objects.filter(payment_id=payment.payment_id).first()
 
     assert response.status_code == 200
     assert updated_payment.payment_status == "f"
