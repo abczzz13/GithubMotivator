@@ -10,7 +10,7 @@ from mollie.api.resources.base import ResourceBase
 from mollie.api.resources.payment_refunds import PaymentRefunds
 from mollie.api.resources.payments import Payments
 
-from motivator.models import Goal
+from motivator.models import Goal, Payment
 from motivator.payments import MolliePaymentProvider
 from users.models import User, UserMotivator
 
