@@ -32,10 +32,11 @@ def mollie_webhook(request) -> HttpResponse:
 
     payment_client = MolliePaymentProvider()
     try:
-        payment = payment_client.get_payment_info(id)
+        payment = payment_client.get_payment(id)
     except IdentifierError:
         return HttpResponse(status=400)
 
+    # check if payment update is valid before updating DB
     if payment["id"] == id and payment["profileId"] == settings.MOLLIE_PROFILE_ID:
         Payment.objects.filter(mollie_id=id).update(
             payment_status=Payment.process_payment_status(payment["status"])
@@ -68,16 +69,6 @@ class ListGoal(LoginRequiredMixin, ListView):
         for goal in self.get_unpaid_goals():
             unpaid_goal = {"goal": goal}
             context["unpaid_goals"].append(unpaid_goal)
-
-        # Add unpaid goals with payment links
-        # context["unpaid_goals"] = []
-        # for goal in self.get_unpaid_goals():
-        #     unpaid_goal = {"goal": goal}
-        #     try:
-        #         unpaid_goal["payment_link"] = MolliePaymentProvider.get_or_create_payment(goal)
-        #     except RequestError:
-        #         unpaid_goal["error"] = "Error with creating payment"
-        #     context["unpaid_goals"].append(unpaid_goal)
 
         return context
 
@@ -132,21 +123,6 @@ class DetailGoal(LoginRequiredMixin, DetailView):
         context["unpaid"] = True
         return context
 
-        # Add payment link if unpaid
-        # payments = self.get_payments()
-        # for payment in payments:
-        #     if payment.payment_status == "p":
-        #         return context
-        #     if payment.payment_status == "o":
-        #         context["payment_link"] = payment.checkout_url
-
-        # if "payment_link" not in context:
-        #     try:
-        #         context["payment_link"] = MolliePaymentProvider.get_or_create_payment(self.object)
-        #     except RequestError:
-        #         context["error"] = "Error with creating payment"
-        # return context
-
     def get_payments(self) -> QuerySet[Payment]:
         """Retrieves all the payments related to the Goal"""
         return Payment.objects.filter(goal=self.object)
@@ -170,7 +146,6 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
     def get_success_url(self) -> str:
         """Starts the Mollie payment process and redirects to the Mollie payment url"""
-        # return self.create_payment_url()
         return reverse("get-payment-link", args=[self.object.pk])
 
     def form_valid(self, form):
@@ -178,16 +153,6 @@ class CreateGoal(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         form.instance.user = self.request.user
         form.instance.github_username = self.github_username
         return super(CreateGoal, self).form_valid(form)
-
-    # def create_payment_url(self) -> str:
-    #     """Create payment with Mollie and return payment url"""
-    #     payment_client = MolliePaymentProvider()
-    #     try:
-    #         payment = payment_client.create_payment(self.object)
-    #         return payment.checkout_url
-    #     except RequestError:
-    #         # What to do in this situation?
-    #         return redirect("goal-list")
 
 
 def get_payment_link(request, pk: int) -> HttpResponse:
@@ -197,7 +162,7 @@ def get_payment_link(request, pk: int) -> HttpResponse:
         return redirect("goal-list")
     payment_client = MolliePaymentProvider()
     try:
-        payment_link = payment_client.get_or_create_payment(goal)
+        payment_link = payment_client.get_or_create_payment_link(goal)
     except RequestError:
         # What to do in this situation?
         # maybe a seperate fallback page?
