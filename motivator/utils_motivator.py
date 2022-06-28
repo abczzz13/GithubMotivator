@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.utils import timezone
+from pytz import UTC
 
 from .models import Goal
 from .utils import get_response_from_url
@@ -9,9 +10,8 @@ from .utils import get_response_from_url
 
 def parse_github_datetime(event_datetime: str) -> datetime:
     """Parse the Github UTC time to Europe/Amsterdam Timezone object"""
-    date_time = event_datetime[:-1].replace("T", " ")
-    github_utc_time = timezone.make_aware(datetime.strptime(date_time, "%Y-%m-%d %H:%M:%S"))
-    return github_utc_time + timezone.timedelta(hours=2)
+    utc_time = timezone.make_aware(datetime.fromisoformat(event_datetime[:-1]), timezone=UTC)
+    return utc_time.astimezone()
 
 
 def count_commits(goal: Goal) -> int:
