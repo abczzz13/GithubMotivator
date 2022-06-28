@@ -72,11 +72,11 @@ def test_motivator_goals_create(rf, user):
 
 
 @pytest.mark.django_db
-def test_motivator_get_payment_link(rf, goal):
+def test_motivator_get_payment_link(patched_create, rf, goal):
     """
-    GIVEN
-    WHEN
-    THEN
+    GIVEN a Django application configured for testing
+    WHEN a get request is made to the payment of an existing goal
+    THEN the client will de redirected to the checkout_url
     """
     path = reverse("get-payment-link", args=[goal.pk])
     request = rf.get(path)
@@ -92,9 +92,9 @@ def test_motivator_get_payment_link(rf, goal):
 @pytest.mark.django_db
 def test_motivator_get_payment_link_invalid(rf):
     """
-    GIVEN
-    WHEN
-    THEN
+    GIVEN a Django application configured for testing
+    WHEN a get request is made to the payment of an non existing goal
+    THEN the client will de redirected to goal overview page
     """
     goal_id = 99
     path = reverse("get-payment-link", args=[goal_id])
@@ -109,9 +109,9 @@ def test_motivator_get_payment_link_invalid(rf):
 @pytest.mark.django_db
 def test_motivator_webhook_valid(patched_get, rf, payment):
     """
-    GIVEN
-    WHEN
-    THEN
+    GIVEN a Django application configured for testing
+    WHEN a get request is made to the webhook with appropriate data
+    THEN the response will be 200, status update will be fetched and updated in the DB
     """
     path = reverse("mollie-webhook")
     request = rf.post(path, data={"id": payment.payment_id})
@@ -131,9 +131,9 @@ def test_motivator_webhook_valid(patched_get, rf, payment):
 @pytest.mark.django_db
 def test_motivator_webhook_invalid(rf, data):
     """
-    GIVEN
-    WHEN
-    THEN
+    GIVEN a Django application configured for testing
+    WHEN a get request is made to the webhook with invalid data
+    THEN the response will be 400
     """
     path = reverse("mollie-webhook")
     request = rf.post(path, data=data)

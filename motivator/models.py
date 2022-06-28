@@ -93,10 +93,10 @@ class Refund(models.Model):
     )
 
     @staticmethod
-    def process_payment_status(status: str):
+    def process_refund_status(status: str):
         for choice in STATUS_CHOICES:
             if choice[1] == status:
                 return choice[0]
 
-    # def __str__(self) -> str:
-    #     return f"Payment {self.mollie_id}: EUR {self.amount_eur} on date: {self.datetime} for goal: {self.goal} with status: {self.payment_status}"
+    def __str__(self) -> str:
+        return f"Refund {self.refund_id}: EUR {self.amount_eur} on date: {self.datetime} for goal: {self.goal} and payment {self.payment} with status: {self.refund_status}"

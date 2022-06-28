@@ -6,9 +6,9 @@ from motivator.payments import PaymentProvider
 @pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_create_payment_valid(payment_client: PaymentProvider, patched_create, goal: Goal):
     """
-    GIVEN
-    WHEN
-    THEN
+    GIVEN a Django application configured for testing
+    WHEN a payment is created from a valid goal
+    THEN a valid payment is returned and saved in the DB
     """
     payment = payment_client.create_payment(goal)
 
@@ -30,15 +30,15 @@ def test_create_payment_invalid():
 
 
 @pytest.mark.django_db
-def test_get_payment_info(payment_client: PaymentProvider, patched_get):
+def test_get_payment_info(payment_client: PaymentProvider, patched_get, payment: Payment):
     """
-    GIVEN
-    WHEN
-    THEN
+    GIVEN a Django application configured for testing
+    WHEN an existing payment is retrieved from the PaymentProvider
+    THEN the valid payment data is returned
     """
-    payment = payment_client.get_payment("tr_QdCtWBhJAD")
+    mollie_payment = payment_client.get_payment(payment.payment_id)
 
-    assert payment["id"] == "tr_QdCtWBhJAD"
+    assert mollie_payment["id"] == "tr_QdCtWBhJAD"
 
 
 @pytest.mark.django_db
@@ -51,9 +51,9 @@ def test_create_refund_valid(
     patched_on,
 ):
     """
-    GIVEN
-    WHEN
-    THEN
+    GIVEN a Django application configured for testing
+    WHEN a refund is created based on existing goal and payment
+    THEN a valid refund is created
     """
     refund = payment_client.create_refund(payment, goal)
 
@@ -74,11 +74,27 @@ def test_create_refund_invalid():
 
 
 @pytest.mark.django_db
-def test_get_or_create_payment_valid(payment_client: PaymentProvider, patched_create, goal: Goal):
+def test_get_or_create_payment_existing_payment(
+    payment_client: PaymentProvider, patched_create, goal: Goal, payment: Payment
+):
     """
-    GIVEN
-    WHEN
-    THEN
+    GIVEN a Django application configured for testing
+    WHEN an existing payment link is requested with the get_or_create function
+    THEN the payment_link is returned from this payment
+    """
+    payment_link = payment_client.get_or_create_payment_link(goal)
+
+    assert payment_link == "https://www.mollie.com/checkout/select-issuer/ideal/QdCtWBhJAD"
+
+
+@pytest.mark.django_db
+def test_get_or_create_payment_new_payment(
+    payment_client: PaymentProvider, patched_create, goal: Goal
+):
+    """
+    GIVEN a Django application configured for testing
+    WHEN a new payment link is requested with the get_or_create function
+    THEN a new payment is created and the payment_link is returned
     """
     payment_link = payment_client.get_or_create_payment_link(goal)
 
