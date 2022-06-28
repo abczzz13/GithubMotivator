@@ -24,23 +24,16 @@ def index(request):
 
 
 @csrf_exempt
-def mollie_webhook(request) -> HttpResponse:
-    """Mollie Webhook for updating the payment status"""
+def payment_webhook(request) -> HttpResponse:
+    """Payment Webhook for updating the payment status"""
     if "id" not in request.POST:
         return HttpResponse(status=400)
-    id = request.POST["id"]
 
     payment_client = MolliePaymentProvider()
     try:
-        payment = payment_client.get_payment(id)
+        payment_client.update_status(request.POST["id"])
     except IdentifierError:
         return HttpResponse(status=400)
-
-    # check if payment update is valid before updating DB
-    if payment["id"] == id and payment["profileId"] == settings.MOLLIE_PROFILE_ID:
-        Payment.objects.filter(payment_id=id).update(
-            payment_status=Payment.process_payment_status(payment["status"])
-        )
 
     return HttpResponse(status=200)
 

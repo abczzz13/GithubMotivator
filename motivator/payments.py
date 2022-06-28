@@ -40,6 +40,10 @@ class PaymentProvider(ABC):
     def get_or_create_payment_link(self, goal: Goal) -> str:
         """Returns payment link if valid, else creates new payment"""
 
+    @abstractmethod
+    def update_status(self, id: str) -> bool:
+        """Updates the status of payment or refund ID"""
+
 
 class MolliePaymentProvider(PaymentProvider):
     client = Client()
@@ -128,6 +132,27 @@ class MolliePaymentProvider(PaymentProvider):
         )
         refund.save()
         return refund
+
+    def update_status(self, id: str) -> bool:
+        """Updates the status of payment or refund ID"""
+        resource = self.get_payment(id)
+
+        # check if payment update is valid before updating DB
+        if resource["id"] == id and resource["profileId"] == settings.MOLLIE_PROFILE_ID:
+
+            if resource["resource"] == "payment":
+                Payment.objects.filter(payment_id=id).update(
+                    payment_status=Payment.process_payment_status(resource["status"])
+                )
+                return True
+
+            if resource["resource"] == "refund":
+                Refund.objects.filter(refund_id=id).update(
+                    refund_staus=Refund.process_refund_status(resource["status"])
+                )
+                return True
+
+        return False
 
     @staticmethod
     def amount_to_str(amount: int) -> str:

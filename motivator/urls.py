@@ -7,7 +7,7 @@ from .views import (
     ListGoal,
     get_payment_link,
     index,
-    mollie_webhook,
+    payment_webhook,
 )
 
 urlpatterns = [
@@ -16,5 +16,5 @@ urlpatterns = [
     path("goals/new/", CreateGoal.as_view(), name="goal-create"),
     path("goals/<pk>/", DetailGoal.as_view(), name="goal-detail"),
     path("goals/<pk>/payment/", get_payment_link, name="get-payment-link"),
-    path("mollie/", mollie_webhook, name="mollie-webhook"),
+    path("webhook/", payment_webhook, name="payment-webhook"),
 ]
