@@ -1,15 +1,12 @@
 import pytest
 from motivator.utils import get_response_from_url
 
-# url = f"https://api.github.com/repos/{goal['github_user']}/{goal['repo']}/events"
-# "https://api.github.com/repos/abczzz13/GithubMotivator/events"
-
 
 def test_get_response_from_url_valid_data():
     """
     GIVEN a Django application configured for testing
-    WHEN
-    THEN
+    WHEN an external call is made to the Github API with a valid repo
+    THEN check that there is no error message
     """
     url = "https://api.github.com/repos/abczzz13/GithubMotivator/events"
     response = get_response_from_url(url)
@@ -39,8 +36,8 @@ def test_get_response_from_url_valid_data():
 def test_get_response_from_url_invalid_data(url: str, result: str):
     """
     GIVEN a Django application configured for testing
-    WHEN
-    THEN
+    WHEN an external call is made to the Github API with a invalid repo
+    THEN check that there is an error message
     """
     response = get_response_from_url(url)
     assert response["message"] == result
@@ -62,8 +59,8 @@ def test_get_response_from_url_invalid_data(url: str, result: str):
 def test_utils_get_response_from_url_valid_status_code(url: str, result: int):
     """
     GIVEN a Django application configured for testing
-    WHEN
-    THEN
+    WHEN an external call is made to the Github API with a valid url
+    THEN a status code of 200 is returned
     """
     response = get_response_from_url(url)
     assert response.status_code == result
@@ -78,13 +75,11 @@ def test_utils_get_response_from_url_valid_status_code(url: str, result: int):
         ),
     ],
 )
-def test_utils_get_response_from_url_invalid_status_code(
-    url: str, result: dict[str, str]
-):
+def test_utils_get_response_from_url_invalid_status_code(url: str, result: dict[str, str]):
     """
     GIVEN a Django application configured for testing
-    WHEN
-    THEN
+    WHEN an external call is made to the Github API with a invalid repo
+    THEN the appropriate error is raised
     """
     response = get_response_from_url(url)
     assert response == result

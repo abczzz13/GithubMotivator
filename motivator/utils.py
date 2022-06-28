@@ -7,7 +7,7 @@ from requests.exceptions import HTTPError, RequestException, Timeout, TooManyRed
 
 
 def get_response_from_url(
-    url: str,
+    url: str, headers: dict[str, str] = {}
 ) -> Union[dict[str, str], requests.Response]:
     """Making a request to an url to get the response"""
     retry_strategy = Retry(
@@ -23,7 +23,7 @@ def get_response_from_url(
         http.mount("http://", adapter)
 
         try:
-            response = http.get(url)
+            response = http.get(url, headers=headers)
             response.raise_for_status()
         except Timeout:
             return {"message": "Timeout"}

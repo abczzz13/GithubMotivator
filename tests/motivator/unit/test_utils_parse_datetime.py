@@ -18,4 +18,5 @@ def test_goal_model_validation_error(event_datetime, result):
     ! please note the time correction from Github time +2 hours
     """
     output = parse_github_datetime(event_datetime)
+
     assert output == timezone.make_aware(result)
