@@ -54,6 +54,6 @@ jobs:
         POSTGRES_DB_PW: ${{ secrets.POSTGRES_DB_PW}}
         POSTGRES_DB_HOST: ${{ secrets.POSTGRES_DB_HOST }}
         POSTGRES_DB_PORT: ${{ secrets.POSTGRES_DB_PORT }}
-
-          
-          
+        MOLLIE_PUBLIC_URL: ${{ secrets.MOLLIE_PUBLIC_URL }}
+        MOLLIE_API_KEY: ${{ secrets.MOLLIE_API_KEY }}
+        MOLLIE_PROFILE_ID: ${{ secrets.MOLLIE_PROFILE_ID }}
