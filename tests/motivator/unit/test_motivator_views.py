@@ -8,7 +8,7 @@ from motivator.views import (
     ListGoal,
     get_payment_link,
     index,
-    mollie_webhook,
+    payment_webhook,
 )
 
 
@@ -113,10 +113,10 @@ def test_motivator_webhook_valid(patched_get, rf, payment):
     WHEN a get request is made to the webhook with appropriate data
     THEN the response will be 200, status update will be fetched and updated in the DB
     """
-    path = reverse("mollie-webhook")
+    path = reverse("payment-webhook")
     request = rf.post(path, data={"id": payment.payment_id})
 
-    response = mollie_webhook(request)
+    response = payment_webhook(request)
 
     updated_payment = Payment.objects.filter(payment_id=payment.payment_id).first()
 
@@ -135,9 +135,9 @@ def test_motivator_webhook_invalid(rf, data):
     WHEN a get request is made to the webhook with invalid data
     THEN the response will be 400
     """
-    path = reverse("mollie-webhook")
+    path = reverse("payment-webhook")
     request = rf.post(path, data=data)
 
-    response = mollie_webhook(request)
+    response = payment_webhook(request)
 
     assert response.status_code == 400
