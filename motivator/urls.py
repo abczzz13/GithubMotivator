@@ -15,6 +15,6 @@ urlpatterns = [
     path("goals/", ListGoal.as_view(), name="goal-list"),
     path("goals/new/", CreateGoal.as_view(), name="goal-create"),
     path("goals/<pk>/", DetailGoal.as_view(), name="goal-detail"),
-    path("mollie/", mollie_webhook, name="mollie-webhook"),
     path("goals/<pk>/payment/", get_payment_link, name="get-payment-link"),
+    path("mollie/", mollie_webhook, name="mollie-webhook"),
 ]
