@@ -29,7 +29,7 @@ def test_create_payment_invalid():
     pass
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_get_payment_info(payment_client: PaymentProvider, patched_get, payment: Payment):
     """
     GIVEN a Django application configured for testing
@@ -41,7 +41,7 @@ def test_get_payment_info(payment_client: PaymentProvider, patched_get, payment:
     assert mollie_payment["id"] == "tr_QdCtWBhJAD"
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_create_refund_valid(
     payment_client: PaymentProvider,
     payment: Payment,
@@ -73,7 +73,7 @@ def test_create_refund_invalid():
     pass
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_get_or_create_payment_existing_payment(
     payment_client: PaymentProvider, patched_create, goal: Goal, payment: Payment
 ):
@@ -87,7 +87,7 @@ def test_get_or_create_payment_existing_payment(
     assert payment_link == "https://www.mollie.com/checkout/select-issuer/ideal/QdCtWBhJAD"
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_get_or_create_payment_new_payment(
     payment_client: PaymentProvider, patched_create, goal: Goal
 ):
@@ -110,7 +110,7 @@ def test_get_or_create_payment_invalid():
     pass
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_save_payment_valid(payment_client: PaymentProvider, goal: Goal):
     """
     GIVEN a Django application configured for testing

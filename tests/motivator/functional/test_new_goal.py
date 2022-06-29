@@ -18,7 +18,7 @@ def test_create_goal_authenticated(client, authenticated_user):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_create_goal_unauthenticated(client):
     """
     GIVEN a Django application configured for testing

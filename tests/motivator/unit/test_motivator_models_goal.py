@@ -7,7 +7,7 @@ from motivator.models import Goal
 from users.models import User
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_goal_model_valid():
     """
     GIVEN a Django application configured for testing
@@ -112,9 +112,7 @@ def test_goal_model_valid():
         ),
     ],
 )
-def test_goal_model_validation_error(
-    repo, commit_goal, amount, start_date, end_date, value_error
-):
+def test_goal_model_validation_error(repo, commit_goal, amount, start_date, end_date, value_error):
     """
     GIVEN a Django application configured for testing
     WHEN invalid parameterized data is used as input to the Goal Model

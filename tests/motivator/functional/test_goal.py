@@ -1,6 +1,6 @@
 """End-to-End Tests for testing the goal overview functionality"""
-from django.contrib.auth import get_user
 import pytest
+from django.contrib.auth import get_user
 
 
 def test_goal_authenticated(client, authenticated_user):
@@ -17,7 +17,7 @@ def test_goal_authenticated(client, authenticated_user):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_goal_unauthenticated(client):
     """
     GIVEN a Django application configured for testing
