@@ -156,7 +156,5 @@ def get_payment_link(request, pk: int) -> HttpResponse:
     try:
         payment_link = payment_client.get_or_create_payment_link(goal)
     except RequestError:
-        # What to do in this situation?
-        # maybe a seperate fallback page?
-        return redirect("goal-list")
+        return render(request, "motivator/payment_error.html", {"title": "Payment Error"})
     return redirect(payment_link)
