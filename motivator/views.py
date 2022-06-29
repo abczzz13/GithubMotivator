@@ -1,6 +1,5 @@
 from typing import Any
 
-from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import QuerySet
@@ -31,11 +30,11 @@ def payment_webhook(request) -> HttpResponse:
 
     payment_client = MolliePaymentProvider()
     try:
-        payment_client.update_status(request.POST["id"])
+        updated = payment_client.update_status(request.POST["id"])
     except IdentifierError:
         return HttpResponse(status=400)
 
-    return HttpResponse(status=200)
+    return HttpResponse(status=200) if updated else HttpResponse(status=400)
 
 
 class ListGoal(LoginRequiredMixin, ListView):

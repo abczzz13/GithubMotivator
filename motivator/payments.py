@@ -75,15 +75,12 @@ class MolliePaymentProvider(PaymentProvider):
 
     def get_payment(self, id: str) -> Json:
         """Get payment info from Mollie"""
-        # catching errors?
         payment = self.client.payments.get(id)
         return payment
 
     def create_refund(self, payment: Payment, goal: Goal) -> Refund:
         """Create Mollie refund"""
         mollie_payment = self.get_payment(payment.payment_id)
-        print(payment)
-        print(payment.amount_eur)
         payload = {
             "amount": {
                 "currency": "EUR",
@@ -98,8 +95,6 @@ class MolliePaymentProvider(PaymentProvider):
         }
         mollie_refund = self.client.payment_refunds.on(mollie_payment).create(payload)
         refund = self.save_refund(mollie_refund, payment, goal)
-        # verify if refund was created successfully?
-        # what to with saving refunds in the DB?
         return refund
 
     def get_or_create_payment_link(self, goal: Goal) -> str:
@@ -138,23 +133,23 @@ class MolliePaymentProvider(PaymentProvider):
         resource = self.get_payment(id)
 
         # check if payment update is valid before updating DB
-        if resource["id"] == id and resource["profileId"] == settings.MOLLIE_PROFILE_ID:
+        if resource["id"] != id or resource["profileId"] != settings.MOLLIE_PROFILE_ID:
+            return False
 
-            if resource["resource"] == "payment":
-                Payment.objects.filter(payment_id=id).update(
-                    payment_status=Payment.process_payment_status(resource["status"])
-                )
-                return True
-
-            if resource["resource"] == "refund":
-                Refund.objects.filter(refund_id=id).update(
-                    refund_staus=Refund.process_refund_status(resource["status"])
-                )
-                return True
-
-        return False
+        if resource["resource"] == "payment":
+            Payment.objects.filter(payment_id=id).update(
+                payment_status=Payment.process_payment_status(resource["status"])
+            )
+            return True
+        elif resource["resource"] == "refund":
+            Refund.objects.filter(refund_id=id).update(
+                refund_staus=Refund.process_refund_status(resource["status"])
+            )
+            return True
+        else:
+            return False
 
     @staticmethod
     def amount_to_str(amount: int) -> str:
-        """Convert amount to a str for creating a Mollie payment"""
+        """Convert amount to a str for creating a Payment"""
         return str(f"{amount:.2f}")

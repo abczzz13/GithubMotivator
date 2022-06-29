@@ -2,7 +2,7 @@ import pytest
 from motivator.models import Payment
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_payment_model_valid(goal):
     """
     GIVEN a Django application configured for testing
@@ -24,7 +24,7 @@ def test_payment_model_valid(goal):
     assert len(query_set) == 1
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 @pytest.mark.parametrize(
     "payment_status, payment_char",
     [

@@ -16,6 +16,8 @@ from users.models import User, UserMotivator
 
 
 class MockPaymentProvider:
+    """Mocked Payment Provider for monkeypatching the external API calls"""
+
     def patched_create(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Patched function to mimic the external Mollie API call"""
         payment = {
@@ -137,26 +139,31 @@ class MockPaymentProvider:
 
 @pytest.fixture()
 def patched_create(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Monkeypatched create method function"""
     monkeypatch.setattr(ResourceBase, "create", MockPaymentProvider.patched_create)
 
 
 @pytest.fixture()
 def patched_get(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Monkeypatched get method function"""
     monkeypatch.setattr(Payments, "get", MockPaymentProvider.patched_get)
 
 
 @pytest.fixture()
 def patched_on(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Monkeypatched on method function"""
     monkeypatch.setattr(PaymentRefunds, "on", MockPaymentProvider.patched_on)
 
 
 @pytest.fixture()
 def patched_refund(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Monkeypatched refund method function"""
     monkeypatch.setattr(ResourceBase, "create", MockPaymentProvider.patched_refund)
 
 
 @pytest.fixture()
 def user(db):
+    """A test user as fixture"""
     motivator = mixer.blend(UserMotivator, github_username="abczzz13")
     test_user = mixer.blend(User, username="Test User")
     motivator.user = test_user
@@ -167,6 +174,7 @@ def user(db):
 
 @pytest.fixture()
 def goal(user):
+    """A goal as a fixture"""
     start_date = timezone.now() + timezone.timedelta(minutes=1)
     end_date = timezone.now() + timezone.timedelta(days=1)
     motivator_goal = mixer.blend(Goal, start_date=start_date, end_date=end_date)
@@ -176,19 +184,21 @@ def goal(user):
 
 @pytest.fixture()
 def payment_client():
+    """Providing the payment client as a fixture"""
     return MolliePaymentProvider()
 
 
 @pytest.fixture()
 def payment(payment_client: PaymentProvider, monkeypatch: pytest.MonkeyPatch, goal):
+    """Providing a payment as a fixture"""
     monkeypatch.setattr(ResourceBase, "create", MockPaymentProvider.patched_create)
-    payment_client = MolliePaymentProvider()
     payment = payment_client.create_payment(goal)
     return payment
 
 
 @pytest.fixture()
 def registered_user(client, db):
+    """Providing a registered user as a fixture"""
     user = {
         "username": "Test_User",
         "email": "test@test.com",
@@ -196,18 +206,15 @@ def registered_user(client, db):
         "password2": "PasswordofTestUser",
         "github_username": "abczzz13",
     }
-
     client.post("/register/", user)
-
     return user
 
 
 @pytest.fixture()
 def authenticated_user(client, registered_user):
-
+    """Providing an authenticated user as a fixture"""
     client.login(
         username=registered_user["username"],
         password=registered_user["password1"],
     )
-
     return registered_user

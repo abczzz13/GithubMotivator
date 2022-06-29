@@ -71,7 +71,7 @@ def test_motivator_goals_create(rf, user):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_motivator_get_payment_link(patched_create, rf, goal):
     """
     GIVEN a Django application configured for testing
@@ -89,7 +89,7 @@ def test_motivator_get_payment_link(patched_create, rf, goal):
     assert response.url == payment.checkout_url
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_motivator_get_payment_link_invalid(rf):
     """
     GIVEN a Django application configured for testing
@@ -106,7 +106,7 @@ def test_motivator_get_payment_link_invalid(rf):
     assert response.url == "/goals/"
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_motivator_webhook_valid(patched_get, rf, payment):
     """
     GIVEN a Django application configured for testing
@@ -128,7 +128,7 @@ def test_motivator_webhook_valid(patched_get, rf, payment):
     "data",
     [{}, {"id": "test007"}, {"else": "something"}],
 )
-@pytest.mark.django_db
+@pytest.mark.django_db(transaction=True, reset_sequences=True)
 def test_motivator_webhook_invalid(rf, data):
     """
     GIVEN a Django application configured for testing
