@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.utils import timezone
 
-from .models import Goal
-from .utils import get_response_from_url
+from motivator.models import Goal
+from motivator.utils import get_response_from_url
 
 
 class GoalForm(ModelForm):
@@ -45,9 +45,7 @@ class GoalForm(ModelForm):
         """Validate the Github repo url"""
         url = f"https://github.com/{github_username}/{repo}"
         if "message" in get_response_from_url(url):
-            raise ValidationError(
-                {"repo": "This Github repository could not be found."}
-            )
+            raise ValidationError({"repo": "This Github repository could not be found."})
 
     def clean(self):
         """Clean and validate the data"""

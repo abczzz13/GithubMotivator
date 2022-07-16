@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms import ModelForm
 
-from .models import UserMotivator
+from users.models import UserMotivator
 
 
 class UserRegisterForm(UserCreationForm):
@@ -29,9 +29,7 @@ class UserMotivatorForm(ModelForm):
         if not github_username:
             return github_username
 
-        match = re.search(
-            r"^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$", github_username
-        )
+        match = re.search(r"^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$", github_username)
 
         if not match:
             self.add_error("github_username", "Invalid username.")
