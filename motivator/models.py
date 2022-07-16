@@ -58,7 +58,7 @@ class Goal(models.Model):
 
 class Payment(models.Model):
     payment_id = models.CharField(max_length=255)
-    amount_eur = models.DecimalField(max_digits=5, decimal_places=2)
+    amount_eur = models.DecimalField(max_digits=6, decimal_places=2)
     checkout_url = models.URLField()
     payment_status = models.CharField(
         max_length=1,
@@ -80,7 +80,7 @@ class Payment(models.Model):
 
 class Refund(models.Model):
     refund_id = models.CharField(max_length=255)
-    amount_eur = models.DecimalField(max_digits=5, decimal_places=2)
+    amount_eur = models.DecimalField(max_digits=6, decimal_places=2)
     refund_status = models.CharField(
         max_length=1,
         choices=STATUS_CHOICES,
