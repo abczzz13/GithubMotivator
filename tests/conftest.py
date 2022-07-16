@@ -177,7 +177,7 @@ def goal(user):
     """A goal as a fixture"""
     start_date = timezone.now() + timezone.timedelta(minutes=1)
     end_date = timezone.now() + timezone.timedelta(days=1)
-    motivator_goal = mixer.blend(Goal, start_date=start_date, end_date=end_date)
+    motivator_goal = mixer.blend(Goal, start_date=start_date, end_date=end_date, amount=10)
     motivator_goal.user = user.user
     return motivator_goal
 
