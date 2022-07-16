@@ -32,7 +32,7 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost"]
 
 
 # Application definition
@@ -139,7 +139,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Other settings
 
-INTERNAL_IPS = ["127.0.0.1"]
+INTERNAL_IPS = ["127.0.0.1", "localhost"]
 
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
@@ -153,3 +153,5 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = env.str("EMAIL_USER")
 EMAIL_HOST_PASSWORD = env.str("EMAIL_PASSWORD")
+
+DEBUG_TOOLBAR_CONFIG = {"SHOW_TOOLBAR_CALLBACK": lambda _request: DEBUG}

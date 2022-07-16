@@ -38,9 +38,7 @@ def test_motivator_goals_detail(rf, goal):
     WHEN a GET request is made to 'goal-detail' view function
     THEN check that the response is valid
     """
-    print(goal.id)
     path = reverse("goal-detail", args=[goal.id])
-    print(path)
     request = rf.get(path)
     request.user = goal.user
 
