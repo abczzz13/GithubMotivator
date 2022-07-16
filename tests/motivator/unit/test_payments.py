@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pytest
 from motivator.models import Goal, Payment, Refund
 from motivator.payments import PaymentProvider
@@ -12,7 +14,7 @@ def test_create_payment_valid(payment_client: PaymentProvider, patched_create, g
     """
     payment = payment_client.create_payment(goal)
 
-    assert payment.amount_eur == goal.amount
+    assert Decimal(payment.amount_eur) == goal.amount
     assert payment.goal.id == goal.pk
     assert payment.goal.user.id == goal.user.id
     assert payment.payment_status == "o"
@@ -57,7 +59,7 @@ def test_create_refund_valid(
     """
     refund = payment_client.create_refund(payment, goal)
 
-    assert refund.amount_eur == 10
+    assert Decimal(refund.amount_eur) == goal.amount
     assert refund.refund_status == "o"
     assert refund.payment == payment
     assert refund.goal == goal
@@ -155,7 +157,7 @@ def test_save_payment_valid(payment_client: PaymentProvider, goal: Goal):
     payment = payment_client.save_payment(payment, goal)
 
     assert payment.payment_id == "tr_QdCtWBhJAD"
-    assert payment.amount_eur == 10
+    assert payment.amount_eur == goal.amount
     assert payment.checkout_url == "https://www.mollie.com/checkout/select-issuer/ideal/QdCtWBhJAD"
     assert payment.payment_status == "o"
 
